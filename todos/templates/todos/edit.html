@@ -1,0 +1,29 @@
+{% extends 'todos/base.html' %}
+
+{% block title %}
+<title>Edit Todo</title>
+<div style="margin-bottom: 30px;"></div>
+<form method="post" action="{% url 'todos:edit' todo.id %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="offset-md-2 col-lg-8">
+      <h1>編集</h1>
+      <form method="post" action="{% url 'todos:edit' todo.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="title">タイトル</label>
+          <input type="text" class="form-control" id="title" name="title" value="{{ todo.title }}" required>
+        </div>
+        <div class="form-group">
+          <label for="notes">備考</label>
+          <textarea class="form-control" id="notes" name="notes">{{ todo.notes }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
