@@ -55,14 +55,17 @@
     <div class="offset-md-2 col-lg-6">
       <div class="list-group sortable" id="sortable-list">
         {% for todo in todo_list %}
-        <div class="list-group-item" data-todo-id="{{ todo.id }}">
+        <div class="list-group-item d-flex align-items-center {% if todo.isCompleted %} todo-complete {% endif %}">
+          <form style="display: inline;" method="post" action="{% url 'todos:update' todo.id %}">
+            {% csrf_token %}
+            <input type="checkbox" name="isCompleted" onchange="this.form.submit()" {% if todo.isCompleted %} checked
+            {% endif %} class="todo-status-checkbox"
+            title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
+          </form>
           <div class="todo-details">
             <div class="todo-details-left">
               <span class="todo-title">{{ todo.title }}</span>
               <small class="text-muted">追加日: {{ todo.created_at|date:"Y-m-d" }}</small>
-              <!-- {% if todo.notes %}
-              <div class="todo-notes">{{ todo.notes }}</div>
-              {% endif %} -->
             </div>
             <div class="todo-actions">
               <a href="{% url 'todos:edit' todo.id %}" title="Edit">
