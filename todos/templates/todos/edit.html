@@ -1,17 +1,16 @@
 {% extends 'todos/base.html' %}
-
+<!-- タイトルの編集、備考、締切の設定 -->
 {% block title %}
 <title>Edit Todo</title>
-<div style="margin-bottom: 30px;"></div>
-<form method="post" action="{% url 'todos:edit' todo.id %}">
+<meta name="google" content="notranslate">
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4">
   <div class="row">
     <div class="offset-md-2 col-lg-8">
-      <h1>編集</h1>
-      <form method="post" action="{% url 'todos:edit' todo.id %}">
+      <h1 class="mb-4">詳細</h1>
+      <form method="post" action="{% url 'todos:edit' todo.id %}" id="edit-todo-form">
         {% csrf_token %}
         <div class="form-group">
           <label for="title">タイトル</label>
@@ -21,9 +20,68 @@
           <label for="notes">備考</label>
           <textarea class="form-control" id="notes" name="notes">{{ todo.notes }}</textarea>
         </div>
-        <button type="submit" class="btn btn-primary">保存</button>
-      </form>
+        <div class="form-group">
+          <label for="deadline-date">締切日</label>
+          <input type="date" class="form-control" id="deadline-date" name="deadline_date" value="{{ todo.deadline_date|date:'Y-m-d' }}">
+        </div>       
+        <div class="form-group">
+          <label for="deadline-time">締切時間</label>
+          <input type="time" class="form-control" id="deadline-time" name="deadline_time" value="{{ todo.deadline_time|default_if_none:'' }}">
+        </div>        
+        <div class="form-group">
+          <label for="notification-lead-time">通知</label>
+          <select class="form-control" id="notification-lead-time" name="notification_lead_time">
+            <option value="0" {% if todo.notification_lead_time == 0 %}selected{% endif %}>なし</option>
+            <option value="5" {% if todo.notification_lead_time == 5 %}selected{% endif %}>5分前</option>
+            <option value="10" {% if todo.notification_lead_time == 10 %}selected{% endif %}>10分前</option>
+            <option value="15" {% if todo.notification_lead_time == 15 %}selected{% endif %}>15分前</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="btn btn-outline-secondary">保存</button>
+        <button type="button" id="voice-input-notes-btn" class="btn btn-outline-secondary ml-2">音声</button>
+      </form>      
     </div>
   </div>
 </div>
+
+{% block extra_scripts %}
+<!-- 音声入力機能 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
+
+<script>
+  $(document).ready(function() {
+    var recognition;
+    var recognizing = false;
+    var voiceButton = document.getElementById('voice-input-notes-btn');
+
+    voiceButton.addEventListener('click', function() {
+      if (recognizing) {
+        recognition.stop();
+        return;
+      }
+
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = 'ja-JP'; // 日本語
+
+      recognition.onstart = function() {
+        recognizing = true;
+        voiceButton.textContent = '完了';
+      };
+
+      recognition.onend = function() {
+        recognizing = false;
+        voiceButton.textContent = '音声';
+      };
+
+      recognition.onresult = function(event) {
+        document.getElementById('notes').value = event.results[0][0].transcript;
+      };
+
+      recognition.start();
+    });
+  });
+</script>
+{% endblock %}
+
 {% endblock %}

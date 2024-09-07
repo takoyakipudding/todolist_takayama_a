@@ -10,4 +10,5 @@ urlpatterns = [
     path('edit/<int:todo_id>/', views.edit, name='edit'), 
     path('signup/', views.signup, name='signup'),
     path('update_order/', views.update_order, name='update_order'),
+    path('save_fcm_token/', views.save_fcm_token, name='save_fcm_token'),
 ]

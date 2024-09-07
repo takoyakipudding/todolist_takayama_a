@@ -9,6 +9,9 @@ from django.http import JsonResponse
 from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
+from datetime import datetime, timedelta
+from .models import FCMDevice
 
 @csrf_exempt
 @require_POST
@@ -64,14 +67,32 @@ def update(request, todo_id):
 
 def edit(request, todo_id):
     todo = get_object_or_404(Todo, pk=todo_id)
+
     if request.method == 'POST':
         form = TodoForm(request.POST, instance=todo)
         if form.is_valid():
-            form.save()
+            todo = form.save(commit=False)
+            todo.notification_lead_time = form.cleaned_data['notification_lead_time']
+            todo.save()
+
+            # Notification handling
+            deadline_date = form.cleaned_data.get('deadline_date')
+            deadline_time = form.cleaned_data.get('deadline_time')
+            notification_lead_time = form.cleaned_data.get('notification_lead_time')
+
+            if deadline_date and deadline_time and notification_lead_time > 0:
+                notify_at = datetime.combine(deadline_date, deadline_time) - timedelta(minutes=notification_lead_time)
+                
+                messages.success(request, f'Task "{todo.title}" deadline set. You will be notified {notification_lead_time} minutes before.')
+
             return redirect('todos:index')
+        else:
+            print(form.errors)  # デバッグ用: フォームのエラーメッセージを表示
     else:
         form = TodoForm(instance=todo)
+
     return render(request, 'todos/edit.html', {'form': form, 'todo': todo})
+
 
 def index(request):
     return redirect('/todos')
@@ -87,3 +108,14 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'registration/signup.html', {'form': form})
+
+def save_fcm_token(request):
+    if request.method == 'POST':
+        token = request.POST.get('token')
+        user = request.user
+        if user.is_authenticated:
+            device, created = FCMDevice.objects.get_or_create(user=user, registration_id=token)
+            device.active = True
+            device.save()
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'fail'})

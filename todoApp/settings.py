@@ -26,7 +26,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'fcm_django',
 ]
+
+FCM_DJANGO_SETTINGS = {
+    "FCM_SERVER_KEY": "YOUR_SERVER_KEY_HERE",
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

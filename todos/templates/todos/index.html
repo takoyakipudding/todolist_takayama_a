@@ -6,14 +6,11 @@
 
 {% block content %}
 <div class="container">
-
-  <!-- title row -->
+  <!-- タイトル -->
   <div class="row">
     <div class="offset-md-2 col-lg-9">
       <div class="page-header">
-        <h1>
-          Todo List
-        </h1>
+        <h1>Todo List</h1>
         <!-- ここに日付を追加 -->
         <div class="date-header">
           {{ current_date|date:"Y-m-d" }}
@@ -22,19 +19,18 @@
     </div>
   </div>
 
-  <!-- Add a todo row -->
+  <!-- タイトルの入力と音声追加 -->
   <div class="row">
     <div class="offset-md-2 col-lg-9">
-      <form method="post" action="{% url 'todos:add' %}">
+      <form method="post" action="{% url 'todos:add' %}" id="add-todo-form">
         {% csrf_token %}
         <div class="form-row">
           <div class="col-md-6">
-            <input type="text" class="form-control" name="title" placeholder="タイトルを入力してください" required>
+            <input type="text" class="form-control" name="title" id="todo-title" placeholder="タイトルを入力してください" required>
           </div>
           <div class="col-md-6">
-            <button type="submit" name="submit" class="btn btn-outline-primary">
-              追加
-            </button>
+            <button type="submit" name="submit" class="btn btn-outline-primary">追加</button>
+            <button type="button" id="voice-input-btn" class="btn btn-outline-secondary">音声</button>
           </div>
         </div>
       </form>
@@ -50,7 +46,8 @@
   </div>
   <hr />
 
-  <!-- todo list row -->
+  <!-- リスト -->
+  
   <div class="row">
     <div class="offset-md-2 col-lg-6">
       <div class="list-group sortable" id="sortable-list">
@@ -58,13 +55,11 @@
         <div class="list-group-item d-flex align-items-center {% if todo.isCompleted %} todo-complete {% endif %}">
           <form style="display: inline;" method="post" action="{% url 'todos:update' todo.id %}">
             {% csrf_token %}
-            <input type="checkbox" name="isCompleted" onchange="this.form.submit()" {% if todo.isCompleted %} checked
-            {% endif %} class="todo-status-checkbox"
-            title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
+            <input type="checkbox" name="isCompleted" onchange="this.form.submit()" {% if todo.isCompleted %} checked {% endif %} class="todo-status-checkbox" data-title-id="todo-title-{{ todo.id }}" title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
           </form>
           <div class="todo-details">
             <div class="todo-details-left">
-              <span class="todo-title">{{ todo.title }}</span>
+              <span class="todo-title {% if todo.isCompleted %} todo-title-strikethrough {% endif %}" id="todo-title-{{ todo.id }}">{{ todo.title }}</span>
               <small class="text-muted">追加日: {{ todo.created_at|date:"Y-m-d" }}</small>
             </div>
             <div class="todo-actions">
@@ -85,8 +80,16 @@
 </div>
 
 {% block extra_scripts %}
+<!-- ブーツストラップより優先順位を上げる -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
 
+<style>
+  .todo-title-strikethrough {
+    text-decoration: line-through;
+  }
+</style>
+
+<!-- タイトルの位置移動 -->
 <script>
   $(function() {
     var editMode = false;
@@ -126,7 +129,48 @@
     });
     $("#sortable-list").disableSelection();
   });
-  
+
+  // チェックボックスの状態に応じてタイトルに横線を追加/削除する
+  $(".todo-status-checkbox").change(function() {
+    var titleId = $(this).data("title-id");
+    if ($(this).is(":checked")) {
+      $("#" + titleId).addClass("todo-title-strikethrough");
+    } else {
+      $("#" + titleId).removeClass("todo-title-strikethrough");
+    }
+  });
+
+  // 音声入力機能
+  var recognition;
+  var recognizing = false;
+  var voiceButton = document.getElementById('voice-input-btn');
+
+  voiceButton.addEventListener('click', function() {
+    if (recognizing) {
+      recognition.stop();
+      return;
+    }
+
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = 'ja-JP'; // 日本語
+
+    recognition.onstart = function() {
+      recognizing = true;
+      voiceButton.textContent = '完了';
+    };
+
+    recognition.onend = function() {
+      recognizing = false;
+      voiceButton.textContent = '音声';
+    };
+
+    recognition.onresult = function(event) {
+      document.getElementById('todo-title').value = event.results[0][0].transcript;
+      document.getElementById('add-todo-form').submit(); // 音声入力後にフォームを送信
+    };
+
+    recognition.start();
+  });
 </script>
 {% endblock %}
 
