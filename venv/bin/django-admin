@@ -1,4 +1,4 @@
-#!/Users/reiya/Desktop/web/todolist/venv/bin/python3
+#!/Users/reiya/Desktop/web/todo/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

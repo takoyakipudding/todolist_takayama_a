@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/reiya/Desktop/web/todolist/venv"
+VIRTUAL_ENV="/Users/reiya/Desktop/web/todo/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
