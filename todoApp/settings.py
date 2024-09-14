@@ -11,9 +11,12 @@ SECRET_KEY = config('DJANGO_SECRET_KEY', default='your_default_secret_key')
 
 # DEBUG mode
 DEBUG = config('DEBUG', default=False, cast=bool)
+# DEBUG = True
 
 # ALLOWED_HOSTS
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,your-app-name.onrender.com', cast=lambda v: [s.strip() for s in v.split(',')])
+
+FCM_SERVER_KEY = config('FCM_SERVER_KEY', default='your_fcm_server_key_here')
 
 # Application definition
 INSTALLED_APPS = [
@@ -91,7 +94,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
 
 
 # Whitenoise settings
