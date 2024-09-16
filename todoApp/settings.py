@@ -11,7 +11,6 @@ SECRET_KEY = config('DJANGO_SECRET_KEY', default='your_default_secret_key')
 
 # DEBUG mode
 DEBUG = config('DEBUG', default=False, cast=bool)
-# DEBUG = True
 
 # ALLOWED_HOSTS
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,your-app-name.onrender.com', cast=lambda v: [s.strip() for s in v.split(',')])
@@ -28,12 +27,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'fcm_django',
-    'whitenoise.runserver_nostatic',  # Whitenoise for static files
+    'whitenoise.runserver_nostatic',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Whitenoise middleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,10 +61,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'todoApp.wsgi.application'
 
-# Database
-default_dburl = "sqlite:///" + str(BASE_DIR / "db.sqlite3")
+# Database (using PostgreSQL)
 DATABASES = {
-    'default': dj_database_url.config(default=default_dburl)
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL')
+    )
 }
 
 # Password validation
