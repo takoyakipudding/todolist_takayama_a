@@ -1,0 +1,19 @@
+version: 1
+services:
+  - type: web
+    name: my-django-app
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn todoApp.wsgi --log-file=-"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        value: your_secret_key
+      - key: DATABASE_URL
+        value: postgres://youruser:yourpassword@yourdbhost:yourdbport/yourdatabase # RenderのPostgres URLに変更
+      - key: SUPERUSER_EMAIL
+        value: admin@example.com
+      - key: SUPERUSER_NAME
+        value: admin
+      - key: SUPERUSER_PASSWORD
+        value: password123
+    plan: free
