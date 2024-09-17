@@ -68,15 +68,11 @@ WSGI_APPLICATION = 'todoApp.wsgi.application'
 
 # Database (using PostgreSQL)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rei',
-        'USER': 'rei',
-        'PASSWORD': 'tkym0806',  
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'postgres://rei:tkym0806@localhost:5432/rei')
+    )
 }
+
 
 
 # Password validation
